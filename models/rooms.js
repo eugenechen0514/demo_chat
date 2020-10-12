@@ -1,5 +1,5 @@
 /**
- * @interface RoomMessage
+ * @typedef {Object} RoomMessage
  * @property {string} from user id
  * @property {string} to user id
  * @property {string} content
@@ -7,7 +7,7 @@
  */
 
 /**
- * @interface Room
+ * @typedef {Object} Room
  * @property {string} id
  * @property {RoomMessage[]} messages
  */
