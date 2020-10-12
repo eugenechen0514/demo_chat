@@ -5,6 +5,11 @@
  */
 
 /**
+ * @typedef {User} ChatUser
+ * @property {boolean} isOnline
+ */
+
+/**
  *
  * @type {User[]}
  */

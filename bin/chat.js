@@ -1,13 +1,13 @@
 const UserModel = require('../models/users');
 
 /**
- *
+ * Online user
  * @type {Map<string, Socket>}
  */
 const userIdToSocket = new Map();
 
 /**
- *
+ * Online user
  * @type {Map<Socket, string>}
  */
 const socketToUserId = new Map();
@@ -34,22 +34,34 @@ function handleError(err) {
     console.error(err);
 }
 
+function broadcastUserList(io) {
+    // broadcast user list
+    UserModel.getUsers()
+        .then(users => {
+            /**
+             *
+             * @type {ChatUser[]}
+             */
+            const chatUsers = users.map(user => ({...user, isOnline: [...userIdToSocket.keys()].includes(user.id)}))
+            io.emit('updateUserList', chatUsers);
+        })
+        .catch(handleError)
+}
+
 module.exports = io => {
     io.on('connect', socket => {
         const id = socket.handshake.query.id;
         const name = socket.handshake.query.name;
         registerUser({id, name}, socket);
+        broadcastUserList(io);
 
         socket.emit('greetings', `Hey! ${id} -> ${name}`);
 
-        // broadcast user list
-        UserModel.getUsers()
-            .then(users => {
-                io.emit('updateUserList', users);
-            })
-            .catch(handleError)
-    });
-    io.on('disconnected', socket => {
-        unregisterUser(socket);
+        socket.on('disconnecting', (reason) => {
+            const userId = socketToUserId.get(socket);
+            console.log(`${userId} exited.`, reason);
+            unregisterUser(socket);
+            broadcastUserList(io);
+        });
     });
 }

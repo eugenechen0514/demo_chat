@@ -1,13 +1,13 @@
 
 /**
  *
- * @param {User[]} users
+ * @param {ChatUser[]} users
  * @param {User} self
  */
 function renderUserList(users, self) {
     const html = users
         .filter(user => user.id !== self.id)
-        .map(user => `<li>${user.id} -> ${user.name}</li>`)
+        .map(user => `<li>${user.id} -> ${user.name} (${user.isOnline})</li>`)
         .join('');
     $('.user_list').html(html);
 }
