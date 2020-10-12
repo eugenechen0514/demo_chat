@@ -1,3 +1,5 @@
+const UserModel = require('../models/users');
+
 /**
  *
  * @type {Map<string, Socket>}
@@ -27,6 +29,11 @@ function unregisterUser(socket) {
     userIdToSocket.delete(userId);
 }
 
+
+function handleError(err) {
+    console.error(err);
+}
+
 module.exports = io => {
     io.on('connect', socket => {
         const id = socket.handshake.query.id;
@@ -34,6 +41,13 @@ module.exports = io => {
         registerUser({id, name}, socket);
 
         socket.emit('greetings', `Hey! ${id} -> ${name}`);
+
+        // broadcast user list
+        UserModel.getUsers()
+            .then(users => {
+                io.emit('updateUserList', users);
+            })
+            .catch(handleError)
     });
     io.on('disconnected', socket => {
         unregisterUser(socket);
