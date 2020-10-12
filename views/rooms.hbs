@@ -1,8 +1,15 @@
 <h3>
-    Hi! {{user.name}}
+    Hi! {{own.name}}
 </h3>
+<div>
+    <ul class="people_list">
+        {{#each others}}
+            <li>{{this.id}}: {{this.name}}</li>
+        {{/each}}
+    </ul>
+</div>
 <script>
-    const userId = '{{user.id}}';
-    const userName = '{{user.name}}';
+    const userId = '{{own.id}}';
+    const userName = '{{own.name}}';
     connectRooms(userId, userName);
 </script>

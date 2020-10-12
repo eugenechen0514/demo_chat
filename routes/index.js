@@ -21,8 +21,10 @@ router.post('/register', function(req, res, next) {
     assert(id);
     assert(name);
 
-    const user = await UserModel.ensureRegisterUser({id, name});
-    return {user}
+    const own = await UserModel.ensureRegisterUser({id, name});
+
+    const others = (await UserModel.getUsers()).filter(user => user.id !== own.id);
+    return {own, others}
   })()
       .then((data) => {
         res.render('rooms', data);
