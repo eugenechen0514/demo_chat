@@ -1,4 +1,5 @@
 const UserModel = require('../models/users');
+const RoomModel = require('../models/rooms');
 
 /**
  * Online user
@@ -48,17 +49,42 @@ function broadcastUserList(io) {
         .catch(handleError)
 }
 
-module.exports = io => {
+/**
+ *
+ * @param {Socket} socket
+ */
+function joinRooms(socket) {
+    UserModel.getUsers()
+        .then(users => {
+            users.forEach(user => socket.join(RoomModel.computeRoomId(socketToUserId.get(socket), user)));
+        })
+        .catch(handleError);
+}
+
+/**
+ *
+ * @param {SocketIO.Server} io
+ */
+function init(io) {
     io.on('connect', socket => {
         const id = socket.handshake.query.id;
         const name = socket.handshake.query.name;
         registerUser({id, name}, socket);
         broadcastUserList(io);
 
+        joinRooms(socket);
+
         socket.emit('greetings', `Hey! ${id} -> ${name}`);
 
-        socket.on('createRoom', ({from, to}) => {
-            console.log(`createRoom`, {from, to});
+        socket.on('selectingRoom', ({from, to}) => {
+            console.log('selectingRoom', {from, to});
+
+            // real-time
+            Promise.all([UserModel.findUser(from), UserModel.findUser(to)])
+                .then(([from, to]) => {
+                    socket.emit(`selectedRoom`, {from, to})
+                })
+                .catch(handleError);
         });
 
         socket.on('disconnecting', (reason) => {
@@ -68,4 +94,10 @@ module.exports = io => {
             broadcastUserList(io);
         });
     });
+
+    setInterval(() => {
+        io.sockets
+    }, 2000);
 }
+
+module.exports = init

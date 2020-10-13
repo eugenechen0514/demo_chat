@@ -1,4 +1,18 @@
 let socket = null;
+let channel = null;
+
+function handleError(error) {
+    alert(String(error));
+}
+
+function sendMessage() {
+    if(socket && channel) {
+        const input = document.getElementById('message_input');
+        console.log(input.value);
+    } else {
+        handleError('沒有選擇channel');
+    }
+}
 
 /**
  *
@@ -11,7 +25,7 @@ function renderUserList(users, self) {
         .map(user => {
             const a = document.createElement('a');
             a.addEventListener('click', () => {
-                socket.emit('createRoom', {from: self.id, to: user.id});
+                socket.emit('selectingRoom', {from: self.id, to: user.id});
             });
             a.appendChild(document.createTextNode(`${user.name} (${user.isOnline ? 'online' : 'offline'})`));
 
@@ -22,6 +36,17 @@ function renderUserList(users, self) {
     const userElement = document.getElementsByClassName('user_list').item(0);
     userElement.innerHTML = '';
     userElement.append(...liElements);
+}
+
+/**
+ *
+ * @param {User} from
+ * @param {User} to
+ */
+function selectedChannel(from, to) {
+    channel = {from, to};
+    const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
+    channelTitleElement.innerHTML = `私訊給： ${to.name}`;
 }
 
 /**
@@ -49,5 +74,9 @@ function connectRooms(userId, userName) {
     socket.on('updateUserList', (users) => {
         console.log('updateUserList', users);
         renderUserList(users, self);
+    });
+    socket.on('selectedRoom', ({from, to}) => {
+        console.log('selectedRoom', from, to);
+        selectedChannel(from, to);
     });
 }

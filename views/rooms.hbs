@@ -11,6 +11,15 @@
     <ul class="room_list">
     </ul>
 </div>
+<div>
+    <h2 class="channel_title">請選擇用戶</h2>
+    <ul class="message_list">
+    </ul>
+    <div>
+        <input id="message_input" type="text" />
+        <button onclick="sendMessage()">送出</button>
+    </div>
+</div>
 <script>
     const userId = '{{own.id}}';
     const userName = '{{own.name}}';
