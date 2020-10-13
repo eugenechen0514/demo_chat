@@ -22,12 +22,14 @@ const rooms = [];
 module.exports = {
     /**
      *
-     * @param {User} userA
-     * @param {User} userB
+     * @param {User | string} userA
+     * @param {User | string} userB
      * @return {string}
      */
     computeRoomId(userA, userB) {
-        const ids = [userA.id, userB.id].sort((a, b) => a < b ? -1 : 1);
+        const idA = typeof userA === 'object' ? userA.id : userA;
+        const idB = typeof userB === 'object' ? userB.id : userB;
+        const ids = [idA, idB].sort((a, b) => a < b ? -1 : 1);
         return ids.join('-');
     },
 
