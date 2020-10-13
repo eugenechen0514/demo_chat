@@ -50,7 +50,7 @@ module.exports = {
      * @return {Promise<Room>}
      */
     async ensureRoom(userA, userB) {
-        const roomId = computeRoomId(userA, userB);
+        const roomId = this.computeRoomId(userA, userB);
         const found = rooms.find(room => room.id === roomId);
         if(found) {
             return found;
