@@ -27,7 +27,10 @@ router.post('/register', function(req, res, next) {
     return {own, others}
   })()
       .then((data) => {
-        res.render('rooms', data);
+        res
+            .cookie('userId', id)
+            .cookie('userName', name)
+            .render('rooms', data);
       })
       .catch(next);
 });
