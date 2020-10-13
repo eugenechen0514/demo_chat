@@ -56,7 +56,12 @@ function broadcastUserList(io) {
 function joinRooms(socket) {
     UserModel.getUsers()
         .then(users => {
-            users.forEach(user => socket.join(RoomModel.computeRoomId(socketToUserId.get(socket), user)));
+            users.forEach(user => {
+                const clientUserId = socketToUserId.get(socket);
+                if(clientUserId !== user.id) {
+                    socket.join(RoomModel.computeRoomId(clientUserId, user));
+                }
+            });
         })
         .catch(handleError);
 }
@@ -93,10 +98,21 @@ function init(io) {
             unregisterUser(socket);
             broadcastUserList(io);
         });
+
+        socket.on('sendMessage', (message) => {
+            console.log(message);
+            const {from, to, content, date = new Date()} = message;
+            io.to(RoomModel.computeRoomId(from, to)).emit('sentMessage', {from, to, content, date});
+        });
     });
 
+    // Debug: rooms
     setInterval(() => {
-        io.sockets
+        let msg = '----- rooms ----\n';
+        for(let [userId, socket] of userIdToSocket) {
+            msg += `${userId} : ${Object.keys(socket.rooms)}\n`
+        }
+        console.log(msg);
     }, 2000);
 }
 

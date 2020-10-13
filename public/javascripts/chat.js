@@ -1,4 +1,9 @@
 let socket = null;
+
+/**
+ *
+ * @type {Channel}
+ */
 let channel = null;
 
 function handleError(error) {
@@ -8,7 +13,13 @@ function handleError(error) {
 function sendMessage() {
     if(socket && channel) {
         const input = document.getElementById('message_input');
-        console.log(input.value);
+
+        /**
+         *
+         * @type {RoomMessage}
+         */
+        const message = {...channel, content: input.value};
+        socket.emit('sendMessage', message);
     } else {
         handleError('沒有選擇channel');
     }
@@ -78,5 +89,8 @@ function connectRooms(userId, userName) {
     socket.on('selectedRoom', ({from, to}) => {
         console.log('selectedRoom', from, to);
         selectedChannel(from, to);
+    });
+    socket.on('sentMessage', (message) => {
+        console.log('sentMessage', message);
     });
 }

@@ -1,9 +1,15 @@
 /**
+ * @typedef {Object} Channel
+ * @property {string} from user id
+ * @property {string} to user id
+ */
+
+/**
  * @typedef {Object} RoomMessage
  * @property {string} from user id
  * @property {string} to user id
  * @property {string} content
- * @property {Date} date
+ * @property {Date} [date]
  */
 
 /**
