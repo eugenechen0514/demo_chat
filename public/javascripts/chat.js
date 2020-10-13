@@ -1,3 +1,4 @@
+let socket = null;
 
 /**
  *
@@ -5,11 +6,22 @@
  * @param {User} self
  */
 function renderUserList(users, self) {
-    const html = users
+    const liElements = users
         .filter(user => user.id !== self.id)
-        .map(user => `<li>${user.id} -> ${user.name} (${user.isOnline})</li>`)
-        .join('');
-    $('.user_list').html(html);
+        .map(user => {
+            const a = document.createElement('a');
+            a.addEventListener('click', () => {
+                socket.emit('createRoom', {from: self.id, to: user.id});
+            });
+            a.appendChild(document.createTextNode(`${user.name} (${user.isOnline ? 'online' : 'offline'})`));
+
+            const li = document.createElement('li');
+            li.appendChild(a);
+            return li;
+        })
+    const userElement = document.getElementsByClassName('user_list').item(0);
+    userElement.innerHTML = '';
+    userElement.append(...liElements);
 }
 
 /**
@@ -26,7 +38,7 @@ function connectRooms(userId, userName) {
         name: userName,
     }
 
-    const socket = io({
+    socket = io({
         path: '/rooms',
         query: self
     });

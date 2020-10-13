@@ -57,6 +57,10 @@ module.exports = io => {
 
         socket.emit('greetings', `Hey! ${id} -> ${name}`);
 
+        socket.on('createRoom', ({from, to}) => {
+            console.log(`createRoom`, {from, to});
+        });
+
         socket.on('disconnecting', (reason) => {
             const userId = socketToUserId.get(socket);
             console.log(`${userId} exited.`, reason);
