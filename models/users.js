@@ -26,6 +26,15 @@ module.exports = {
 
     /**
      *
+     * @param userId
+     * @return {Promise<User | undefined>}
+     */
+    async findUser(userId) {
+        return users.find(user => user.id === userId);
+    },
+
+    /**
+     *
      * @param {User} user
      * @return {Promise<User>}
      */
