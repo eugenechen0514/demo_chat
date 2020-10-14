@@ -127,23 +127,6 @@ function renderMessage(messages, self) {
     });
     messageListElement.innerHTML = '';
     messageListElement.append(...messageElements);
-
-}
-
-
-/**
- *
- * @param {User} from
- * @param {User} to
- * @param {RoomMessage[]} messages
- * @param {User} self
- */
-function selectedChannel(from, to, messages, self) {
-    userSelectedChannel = {fromId: from.id, toId: to.id, from, to, messages};
-    const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
-    channelTitleElement.innerHTML = `私訊給： ${to.name}`;
-
-    renderMessage(messages, self);
 }
 
 /**
@@ -155,7 +138,11 @@ function selectedRoom(room, self) {
     userSelectedRoom = room;
 
     const other = room.users.find(user => user.id !== self.id);
-    selectedChannel(self, other, room.messages, self);
+
+    const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
+    channelTitleElement.innerHTML = `私訊給： ${other.name}`;
+
+    renderMessage(room.messages, self);
 }
 
 function initMessageDom(self) {
@@ -209,9 +196,9 @@ function connectRooms(userId, userName) {
     });
     socket.on('sentMessageTopic', (message) => {
         debug('sentMessageTopic', message);
-        if(userSelectedChannel) {
-            userSelectedChannel.messages.push(message);
-            renderMessage(userSelectedChannel.messages, self);
+        if(userSelectedRoom) {
+            userSelectedRoom.messages.push(message);
+            renderMessage(userSelectedRoom.messages, self);
         }
     });
     socket.on('updateRoomsTopic', (rooms) => {
