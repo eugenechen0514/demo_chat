@@ -15,7 +15,7 @@ router.get('/register', function(req, res, next) {
   res.render('register');
 });
 
-router.post('/register', function(req, res, next) {
+router.post('/chat', function(req, res, next) {
   const {id, name} = req.body;
   (async ()=> {
     assert(id);
