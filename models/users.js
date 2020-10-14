@@ -13,7 +13,18 @@
  *
  * @type {User[]}
  */
-const users = [];
+const users = [
+    {
+        id: 'a',
+        name: 'name-a',
+    }, {
+        id: 'b',
+        name: 'name-b',
+    },{
+        id: 'c',
+        name: 'name-c',
+    }
+];
 
 module.exports = {
     /**
@@ -44,6 +55,7 @@ module.exports = {
         if(found) {
             return found;
         }
+        // register
         users.push(user);
         return user;
     }
