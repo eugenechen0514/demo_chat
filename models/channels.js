@@ -25,9 +25,15 @@
 
 /**
  *
- * @type {Room[]}
+ * @type {Channel[]}
  */
 const channels = [];
+
+/**
+ *
+ * @type {Room[]}
+ */
+const rooms = [];
 
 module.exports = {
     /**
@@ -57,13 +63,13 @@ module.exports = {
 
     /**
      *
-     * @param userA
-     * @param userB
+     * @param {User} userA
+     * @param {User} userB
      * @return {Promise<Room>}
      */
     async ensureRoom(userA, userB) {
         const roomId = this.computeRoomId(userA, userB);
-        const found = channels.find(room => room.id === roomId);
+        const found = rooms.find(room => room.id === roomId);
         if(found) {
             return found;
         }
@@ -76,8 +82,34 @@ module.exports = {
             id: roomId,
             messages: [],
         };
-        channels.push(room);
+        rooms.push(room);
         return room;
+    },
+
+    /**
+     *
+     * @param {User} from
+     * @param {User} to
+     * @return {Promise<Channel>}
+     */
+    async ensureChannel(from, to) {
+        const found = channels.find(channel => (channel.fromId === from.id) && (channel.toId === to.id));
+        if(found) {
+            return found;
+        }
+
+        /**
+         *
+         * @type {Channel}
+         */
+        const channel = {
+            fromId: from.id,
+            toId: to.id,
+            from: from,
+            to: to,
+        };
+        channels.push(channel);
+        return channel;
     },
 
     /**
@@ -100,7 +132,9 @@ module.exports = {
             date: new Date()
         };
 
-        const room  = await ensureRoom(fromUser, toUser);
+        const channel  = await this.ensureChannel(fromUser, toUser);
+
+        const room  = await this.ensureRoom(fromUser, toUser);
         room.messages.push(message);
     }
 }

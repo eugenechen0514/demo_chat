@@ -1,5 +1,5 @@
 const UserModel = require('../models/users');
-const RoomModel = require('../models/rooms');
+const ChannelModel = require('../models/channels');
 
 /**
  * Online user
@@ -59,7 +59,7 @@ function joinRooms(socket) {
             users.forEach(user => {
                 const clientUserId = socketToUserId.get(socket);
                 if(clientUserId !== user.id) {
-                    socket.join(RoomModel.computeRoomId(clientUserId, user));
+                    socket.join(ChannelModel.computeRoomId(clientUserId, user));
                 }
             });
         })
@@ -92,18 +92,17 @@ function init(io) {
             console.log('selectChannelTopic', channel);
             const {fromId, toId} = channel;
 
-            // real-time
-            Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)])
-                .then(([from, to]) => {
-                    socket.emit(`selectedChannelTopic`, {fromId, toId, from, to})
-                })
+            (async () => {
+                const [from, to] = await Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)]);
+                socket.emit(`selectedChannelTopic`, {fromId, toId, from, to});
+            })()
                 .catch(handleError);
         });
 
         socket.on('sendMessageTopic', (message) => {
             console.log(message);
             const {from, to, content, date = new Date()} = message;
-            io.to(RoomModel.computeRoomId(from, to)).emit('sentMessageTopic', {from, to, content, date});
+            io.to(ChannelModel.computeRoomId(from, to)).emit('sentMessageTopic', {from, to, content, date});
         });
     });
 
