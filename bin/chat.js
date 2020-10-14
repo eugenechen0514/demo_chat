@@ -1,7 +1,7 @@
 const Queue = require('better-queue');
 
 const UserModel = require('../models/users');
-const ChannelModel = require('../models/channels');
+const RoomModel = require('../models/rooms');
 
 const debug = console.log;
 
@@ -63,7 +63,7 @@ function joinRooms(socket) {
             users.forEach(user => {
                 const clientUserId = socketToUserId.get(socket);
                 if(clientUserId !== user.id) {
-                    socket.join(ChannelModel.computeRoomId(clientUserId, user));
+                    socket.join(RoomModel.computeRoomId(clientUserId, user));
                 }
             });
         })
@@ -90,7 +90,7 @@ function init(io) {
     async function emitRoomList(userId, emitQueue) {
         const toSocket = userIdToSocket.get(userId);
         if (toSocket) {
-            const rooms = await ChannelModel.getUserRooms(userId);
+            const rooms = await RoomModel.getUserRooms(userId);
             emitQueue.push(() => {
                 toSocket.emit('updateRoomsTopic', rooms);
             });
@@ -138,7 +138,7 @@ function init(io) {
 
             (async () => {
                 const [from, to] = await Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)]);
-                const room = await ChannelModel.findRoom(from, to);
+                const room = await RoomModel.findRoom(from, to);
 
                 await emitRoomList(fromId, emitQueue);
                 socket.emit(`selectedRoomTopic`, room);
@@ -150,7 +150,7 @@ function init(io) {
             const {id} = room;
 
             (async () => {
-                const room = await ChannelModel.findRoomById(id);
+                const room = await RoomModel.findRoomById(id);
                 socket.emit(`selectedRoomTopic`, room);
             })()
                 .catch(handleError);
@@ -162,7 +162,7 @@ function init(io) {
             (async () => {
                 // save data to db
                 const [from, to] = await Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)]);
-                await ChannelModel.pushMessage(from, to, content, date);
+                await RoomModel.pushMessage(from, to, content, date);
 
                 // update rooms for online fromUser and toUser
                 await emitRoomList(fromId, emitQueue);
@@ -170,7 +170,7 @@ function init(io) {
 
                 // send msg to sockets with the same room
                 emitQueue.push(() => {
-                    io.to(ChannelModel.computeRoomId(from, to)).emit('sentMessageTopic', {fromId, toId, from, to, content, date});
+                    io.to(RoomModel.computeRoomId(from, to)).emit('sentMessageTopic', {fromId, toId, from, to, content, date});
                 });
             })()
                 .catch(handleError);
