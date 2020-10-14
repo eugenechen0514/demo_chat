@@ -1,10 +1,5 @@
 let socket = null;
 
-/**
- *
- * @type {Channel | null}
- */
-let userSelectedChannel = null;
 
 /**
  *
@@ -16,18 +11,26 @@ function handleError(error) {
     alert(String(error));
 }
 
-function sendMessage() {
-    if(socket && userSelectedChannel) {
+/**
+ *
+ * @param {User} self
+ */
+function sendMessage(self) {
+    if(socket && userSelectedRoom) {
         const input = document.getElementById('message_input');
-
+        const other = getOther(userSelectedRoom, self);
         /**
          *
          * @type {ChannelMessage}
          */
-        const message = {...userSelectedChannel, content: input.value};
+        const message = {
+            fromId: self.id,
+            toId: other.id,
+            content: input.value
+        };
         socket.emit('sendMessageTopic', message);
     } else {
-        handleError('沒有選擇channel');
+        handleError('沒有選擇room');
     }
 }
 
@@ -57,6 +60,16 @@ function renderUserList(users, self) {
 
 /**
  *
+ * @param {Room} room
+ * @param {User} self
+ * @return {User}
+ */
+function getOther(room, self) {
+    return room.users.find(user => user.id !== self.id);
+}
+
+/**
+ *
  * @param {Room[]} rooms
  * @param {User} self
  */
@@ -68,7 +81,7 @@ function renderRooms(rooms, self) {
             socket.emit('selectRoomTopic', room);
         });
 
-        const other = room.users.find(user => user.id !== self.id);
+        const other = getOther(room, self);
         a.appendChild(document.createTextNode(`${other.name} : (${room.messages.length} message, id: ${room.id})`));
         if(room.messages.length > 0) {
             const lastMessage = room.messages[room.messages.length -1];
@@ -149,6 +162,11 @@ function connectRooms(userId, userName) {
         id: userId,
         name: userName,
     }
+
+    document.getElementById('message_button')
+        .addEventListener('click', () => {
+           sendMessage(self);
+        });
 
     socket = io({
         path: '/rooms',

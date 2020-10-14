@@ -129,6 +129,8 @@ function init(io) {
             (async () => {
                 const [from, to] = await Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)]);
                 const room = await ChannelModel.findRoom(from, to);
+
+                await emitRoomList(fromId, emitQueue);
                 socket.emit(`selectedRoomTopic`, room);
             })()
                 .catch(handleError);
@@ -146,9 +148,10 @@ function init(io) {
 
         socket.on('sendMessageTopic', (message) => {
             console.log(message);
-            const {fromId, toId, from, to, content, date = new Date()} = message;
+            const {fromId, toId, content, date = new Date()} = message;
             (async () => {
                 // to db
+                const [from, to] = await Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)]);
                 await ChannelModel.pushMessage(from, to, content, date);
 
                 // update rooms for online fromUser and toUser
