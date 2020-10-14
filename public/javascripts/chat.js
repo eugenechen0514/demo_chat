@@ -31,7 +31,7 @@ function sendMessage() {
  * @param {User} self
  */
 function renderUserList(users, self) {
-    const liElements = users
+    const userElements = users
         .filter(user => user.id !== self.id)
         .map(user => {
             const a = document.createElement('a');
@@ -44,9 +44,9 @@ function renderUserList(users, self) {
             li.appendChild(a);
             return li;
         })
-    const userElement = document.getElementsByClassName('user_list').item(0);
-    userElement.innerHTML = '';
-    userElement.append(...liElements);
+    const userListElement = document.getElementsByClassName('user_list').item(0);
+    userListElement.innerHTML = '';
+    userListElement.append(...userElements);
 }
 
 /**
