@@ -62,6 +62,27 @@ function selectedChannel(from, to) {
 
 /**
  *
+ * @param {Room[]} rooms
+ */
+function renderRooms(rooms) {
+    const roomListElement = document.getElementsByClassName('room_list').item(0);
+    const roomElements = rooms.map(room => {
+        const a = document.createElement('a');
+        a.addEventListener('click', () => {
+            // socket.emit('selectChannelTopic', {fromId: self.id, toId: user.id});
+        });
+        a.appendChild(document.createTextNode(`${room.id} : (${room.messages.length} message)`));
+
+        const li = document.createElement('li');
+        li.appendChild(a);
+        return li;
+    });
+    roomListElement.innerHTML = '';
+    roomListElement.append(...roomElements);
+}
+
+/**
+ *
  * @param {string} userId
  * @param {string} userName
  */
@@ -98,5 +119,6 @@ function connectRooms(userId, userName) {
     });
     socket.on('updateRoomsTopic', (rooms) => {
         console.log('updateRoomsTopic', rooms);
+        renderRooms(rooms);
     });
 }
