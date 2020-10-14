@@ -16,7 +16,7 @@ function sendMessage() {
 
         /**
          *
-         * @type {RoomMessage}
+         * @type {ChannelMessage}
          */
         const message = {...channel, content: input.value};
         socket.emit('sendMessageTopic', message);

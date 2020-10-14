@@ -7,9 +7,11 @@
  */
 
 /**
- * @typedef {Object} RoomMessage
- * @property {string} from user id
- * @property {string} to user id
+ * @typedef {Object} ChannelMessage
+ * @property {string} fromId user id
+ * @property {string} toId user id
+ * @property {string} [from] user
+ * @property {string} [to] user
  * @property {string} content
  * @property {Date} [date]
  */
@@ -17,7 +19,7 @@
 /**
  * @typedef {Object} Room
  * @property {string} id
- * @property {RoomMessage[]} messages
+ * @property {ChannelMessage[]} messages
  */
 
 
@@ -87,10 +89,12 @@ module.exports = {
     async sendMessage(fromUser, toUser, content) {
         /**
          *
-         * @type {RoomMessage}
+         * @type {ChannelMessage}
          */
         const message = {
-            from: fromUser.id,
+            fromId: fromUser.id,
+            toId: toUser.id,
+            from: fromUser,
             to: toUser,
             content,
             date: new Date()
