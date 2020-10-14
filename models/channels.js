@@ -27,7 +27,7 @@
  *
  * @type {Room[]}
  */
-const rooms = [];
+const channels = [];
 
 module.exports = {
     /**
@@ -49,7 +49,7 @@ module.exports = {
      * @return {Promise<Room[]>}
      */
     async getUserRooms(user) {
-        return rooms.filter(room => {
+        return channels.filter(room => {
             const ids = room.id.split('-');
             return ids.find(id => id === user.id);
         });
@@ -63,7 +63,7 @@ module.exports = {
      */
     async ensureRoom(userA, userB) {
         const roomId = this.computeRoomId(userA, userB);
-        const found = rooms.find(room => room.id === roomId);
+        const found = channels.find(room => room.id === roomId);
         if(found) {
             return found;
         }
@@ -76,7 +76,7 @@ module.exports = {
             id: roomId,
             messages: [],
         };
-        rooms.push(room);
+        channels.push(room);
         return room;
     },
 
