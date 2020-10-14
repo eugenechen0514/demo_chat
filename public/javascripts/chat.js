@@ -19,7 +19,7 @@ function sendMessage() {
          * @type {RoomMessage}
          */
         const message = {...channel, content: input.value};
-        socket.emit('sendMessage', message);
+        socket.emit('sendMessageTopic', message);
     } else {
         handleError('沒有選擇channel');
     }
@@ -93,7 +93,7 @@ function connectRooms(userId, userName) {
             selectedChannel(from, to);
         }
     });
-    socket.on('sentMessage', (message) => {
-        console.log('sentMessage', message);
+    socket.on('sentMessageTopic', (message) => {
+        console.log('sentMessageTopic', message);
     });
 }

@@ -81,6 +81,13 @@ function init(io) {
 
         socket.emit('greetings', `Hey! ${id} -> ${name}`);
 
+        socket.on('disconnecting', (reason) => {
+            const userId = socketToUserId.get(socket);
+            console.log(`${userId} exited.`, reason);
+            unregisterUser(socket);
+            broadcastUserList(io);
+        });
+
         socket.on('selectChannelTopic', (channel) => {
             console.log('selectChannelTopic', channel);
             const {fromId, toId} = channel;
@@ -93,17 +100,10 @@ function init(io) {
                 .catch(handleError);
         });
 
-        socket.on('disconnecting', (reason) => {
-            const userId = socketToUserId.get(socket);
-            console.log(`${userId} exited.`, reason);
-            unregisterUser(socket);
-            broadcastUserList(io);
-        });
-
-        socket.on('sendMessage', (message) => {
+        socket.on('sendMessageTopic', (message) => {
             console.log(message);
             const {from, to, content, date = new Date()} = message;
-            io.to(RoomModel.computeRoomId(from, to)).emit('sentMessage', {from, to, content, date});
+            io.to(RoomModel.computeRoomId(from, to)).emit('sentMessageTopic', {from, to, content, date});
         });
     });
 
