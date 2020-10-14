@@ -80,7 +80,14 @@ function renderRooms(rooms) {
         a.addEventListener('click', () => {
             socket.emit('selectRoomTopic', room);
         });
+
         a.appendChild(document.createTextNode(`${room.id} : (${room.messages.length} message)`));
+        if(room.messages.length > 0) {
+            const lastMessage = room.messages[room.messages.length -1];
+            const date = new Date(lastMessage.date);
+            a.appendChild(document.createElement('br'));
+            a.appendChild(document.createTextNode(`${lastMessage.content} at ${date.toLocaleString()}`));
+        }
 
         const li = document.createElement('li');
         li.appendChild(a);
