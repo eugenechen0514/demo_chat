@@ -146,7 +146,7 @@ function init(io) {
 
                 // send msg to room
                 emitQueue.push(() => {
-                    io.to(ChannelModel.computeRoomId(from, to)).emit('sentMessageTopic', {from, to, content, date});
+                    io.to(ChannelModel.computeRoomId(from, to)).emit('sentMessageTopic', {fromId, toId, from, to, content, date});
                 });
             })()
                 .catch(handleError);

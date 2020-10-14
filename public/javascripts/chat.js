@@ -55,7 +55,7 @@ function renderUserList(users, self) {
  * @param {User} to
  */
 function selectedChannel(from, to) {
-    channel = {fromId: from.id, toId: to.id, from, to};
+    channel = {fromId: from.id, toId: to.id, from, to, messages: []};
     const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
     channelTitleElement.innerHTML = `私訊給： ${to.name}`;
 }
@@ -79,6 +79,28 @@ function renderRooms(rooms) {
     });
     roomListElement.innerHTML = '';
     roomListElement.append(...roomElements);
+}
+
+/**
+ *
+ * @param {ChannelMessage[]} messages
+ */
+function renderMessage(messages) {
+    const messageListElement = document.getElementsByClassName('message_list').item(0);
+    const messageElements = messages.map(message => {
+        const a = document.createElement('a');
+        a.addEventListener('click', () => {
+            // socket.emit('selectChannelTopic', {fromId: self.id, toId: user.id});
+        });
+        a.appendChild(document.createTextNode(`${message.fromId} -> ${message.toId} : ${message.content}`));
+
+        const li = document.createElement('li');
+        li.appendChild(a);
+        return li;
+    });
+    messageListElement.innerHTML = '';
+    messageListElement.append(...messageElements);
+
 }
 
 /**
@@ -116,6 +138,10 @@ function connectRooms(userId, userName) {
     });
     socket.on('sentMessageTopic', (message) => {
         console.log('sentMessageTopic', message);
+        if(channel) {
+            channel.messages.push(message);
+            renderMessage(channel.messages);
+        }
     });
     socket.on('updateRoomsTopic', (rooms) => {
         console.log('updateRoomsTopic', rooms);
