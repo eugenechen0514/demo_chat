@@ -1,11 +1,18 @@
+/**
+ *
+ * @type {Socket | null}
+ */
 let socket = null;
-
 
 /**
  *
  * @type {Room | null}
  */
 let userSelectedRoom = null;
+
+
+const debug = console.log;
+
 
 function handleError(error) {
     alert(String(error));
@@ -187,28 +194,28 @@ function connectRooms(userId, userName) {
     });
 
     socket.on('greetings', (msg) => {
-        console.log('message: ' + msg);
+        debug('message: ' + msg);
     });
     socket.on('updateUserList', (users) => {
-        console.log('updateUserList', users);
+        debug('updateUserList', users);
         renderUserList(users, self);
     });
     socket.on('selectedRoomTopic', (room) => {
-        console.log('selectedRoomTopic', room);
+        debug('selectedRoomTopic', room);
         const {id} = room;
         if(id) {
             selectedRoom(room, self);
         }
     });
     socket.on('sentMessageTopic', (message) => {
-        console.log('sentMessageTopic', message);
+        debug('sentMessageTopic', message);
         if(userSelectedChannel) {
             userSelectedChannel.messages.push(message);
             renderMessage(userSelectedChannel.messages, self);
         }
     });
     socket.on('updateRoomsTopic', (rooms) => {
-        console.log('updateRoomsTopic', rooms);
+        debug('updateRoomsTopic', rooms);
         renderRooms(rooms, self);
     });
 }

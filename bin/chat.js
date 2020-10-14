@@ -3,6 +3,8 @@ const Queue = require('better-queue');
 const UserModel = require('../models/users');
 const ChannelModel = require('../models/channels');
 
+const debug = console.log;
+
 /**
  * Online user
  * @type {Map<string, Socket>}
@@ -117,13 +119,13 @@ function init(io) {
 
         socket.on('disconnecting', (reason) => {
             const userId = socketToUserId.get(socket);
-            console.log(`${userId} exited.`, reason);
+            debug(`${userId} exited.`, reason);
             unregisterUser(socket);
             broadcastUserList(io);
         });
 
         socket.on('selectChannelTopic', (channel) => {
-            console.log('selectChannelTopic', channel);
+            debug('selectChannelTopic', channel);
             const {fromId, toId} = channel;
 
             (async () => {
@@ -136,7 +138,7 @@ function init(io) {
                 .catch(handleError);
         });
         socket.on('selectRoomTopic', (room) => {
-            console.log('selectRoomTopic', room);
+            debug('selectRoomTopic', room);
             const {id} = room;
 
             (async () => {
@@ -147,7 +149,7 @@ function init(io) {
         });
 
         socket.on('sendMessageTopic', (message) => {
-            console.log(message);
+            debug(message);
             const {fromId, toId, content, date = new Date()} = message;
             (async () => {
                 // to db
@@ -174,7 +176,7 @@ function init(io) {
             msg += `${userId} : ${Object.keys(socket.rooms)}\n`
         }
         msg += '\n';
-        console.log(msg);
+        debug(msg);
     }, 2000);
 }
 
