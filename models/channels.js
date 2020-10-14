@@ -13,8 +13,8 @@ const UserModel = require('./users');
  * @typedef {Object} ChannelMessage
  * @property {string} fromId user id
  * @property {string} toId user id
- * @property {string} [from] user
- * @property {string} [to] user
+ * @property {User} [from] user
+ * @property {User} [to] user
  * @property {string} content
  * @property {Date} [date]
  */

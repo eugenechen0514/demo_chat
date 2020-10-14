@@ -88,15 +88,16 @@ function renderRooms(rooms, self) {
 /**
  *
  * @param {ChannelMessage[]} messages
+ * @param {User} self
  */
-function renderMessage(messages) {
+function renderMessage(messages, self) {
     const messageListElement = document.getElementsByClassName('message_list').item(0);
     const messageElements = messages.map(message => {
         const a = document.createElement('a');
         a.addEventListener('click', () => {
-            // socket.emit('selectChannelTopic', {fromId: self.id, toId: user.id});
         });
-        a.appendChild(document.createTextNode(`${message.fromId} -> ${message.toId} : ${message.content}`));
+        const fromText = self.id === message.fromId ? '' : `from ${message.from.name}`;
+        a.appendChild(document.createTextNode(`${message.content} ${fromText} (${message.fromId} -> ${message.toId})`));
 
         const li = document.createElement('li');
         li.appendChild(a);
@@ -113,13 +114,14 @@ function renderMessage(messages) {
  * @param {User} from
  * @param {User} to
  * @param {ChannelMessage[]} messages
+ * @param {User} self
  */
-function selectedChannel(from, to, messages) {
+function selectedChannel(from, to, messages, self) {
     userSelectedChannel = {fromId: from.id, toId: to.id, from, to, messages};
     const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
     channelTitleElement.innerHTML = `私訊給： ${to.name}`;
 
-    renderMessage(messages);
+    renderMessage(messages, self);
 }
 
 /**
@@ -131,7 +133,7 @@ function selectedRoom(room, self) {
     userSelectedRoom = room;
 
     const other = room.users.find(user => user.id !== self.id);
-    selectedChannel(self, other, room.messages);
+    selectedChannel(self, other, room.messages, self);
 }
 
 /**
@@ -164,7 +166,7 @@ function connectRooms(userId, userName) {
         console.log('selectedChannelTopic', channel);
         const {from, to, messages} = channel;
         if(from && to) {
-            selectedChannel(from, to, messages);
+            selectedChannel(from, to, messages, self);
         }
     });
     socket.on('selectedRoomTopic', (room) => {
@@ -178,7 +180,7 @@ function connectRooms(userId, userName) {
         console.log('sentMessageTopic', message);
         if(userSelectedChannel) {
             userSelectedChannel.messages.push(message);
-            renderMessage(userSelectedChannel.messages);
+            renderMessage(userSelectedChannel.messages, self);
         }
     });
     socket.on('updateRoomsTopic', (rooms) => {
