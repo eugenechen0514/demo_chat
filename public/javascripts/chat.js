@@ -4,7 +4,7 @@ let socket = null;
  *
  * @type {Channel | null}
  */
-let channel = null;
+let userSelectedChannel = null;
 
 /**
  *
@@ -17,14 +17,14 @@ function handleError(error) {
 }
 
 function sendMessage() {
-    if(socket && channel) {
+    if(socket && userSelectedChannel) {
         const input = document.getElementById('message_input');
 
         /**
          *
          * @type {ChannelMessage}
          */
-        const message = {...channel, content: input.value};
+        const message = {...userSelectedChannel, content: input.value};
         socket.emit('sendMessageTopic', message);
     } else {
         handleError('沒有選擇channel');
@@ -113,7 +113,7 @@ function renderMessage(messages) {
  * @param {ChannelMessage[]} messages
  */
 function selectedChannel(from, to, messages) {
-    channel = {fromId: from.id, toId: to.id, from, to, messages};
+    userSelectedChannel = {fromId: from.id, toId: to.id, from, to, messages};
     const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
     channelTitleElement.innerHTML = `私訊給： ${to.name}`;
 
@@ -174,9 +174,9 @@ function connectRooms(userId, userName) {
     });
     socket.on('sentMessageTopic', (message) => {
         console.log('sentMessageTopic', message);
-        if(channel) {
-            channel.messages.push(message);
-            renderMessage(channel.messages);
+        if(userSelectedChannel) {
+            userSelectedChannel.messages.push(message);
+            renderMessage(userSelectedChannel.messages);
         }
     });
     socket.on('updateRoomsTopic', (rooms) => {
