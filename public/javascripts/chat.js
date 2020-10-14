@@ -29,8 +29,10 @@ function sendMessage(self) {
             content: input.value
         };
         socket.emit('sendMessageTopic', message);
+
+        input.value = '';
     } else {
-        handleError('沒有選擇room');
+        handleError('沒有選擇對象');
     }
 }
 
@@ -149,6 +151,20 @@ function selectedRoom(room, self) {
     selectedChannel(self, other, room.messages, self);
 }
 
+function initMessageDom(self) {
+    const input = document.getElementById('message_button');
+    input.addEventListener('click', (event) => {
+        sendMessage(self);
+    });
+    document.getElementById('message_input')
+        .addEventListener('keyup',  (event) => {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                input.click();
+            }
+        });
+}
+
 /**
  *
  * @param {string} userId
@@ -163,10 +179,7 @@ function connectRooms(userId, userName) {
         name: userName,
     }
 
-    document.getElementById('message_button')
-        .addEventListener('click', () => {
-           sendMessage(self);
-        });
+    initMessageDom(self);
 
     socket = io({
         path: '/rooms',
