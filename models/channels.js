@@ -1,13 +1,3 @@
-const UserModel = require('./users');
-
-/**
- * @typedef {Object} Channel
- * @property {string} fromId user id
- * @property {string} toId user id
- * @property {User} [from] user
- * @property {User} [to] user
- * @property {ChannelMessage[]} messages
- */
 
 /**
  * @typedef {Object} ChannelMessage
@@ -25,13 +15,6 @@ const UserModel = require('./users');
  * @property {ChannelMessage[]} messages
  * @property {User[]} [users]
  */
-
-
-/**
- *
- * @type {Channel[]}
- */
-const channels = [];
 
 /**
  *
@@ -90,34 +73,6 @@ module.exports = {
         };
         rooms.push(room);
         return room;
-    },
-
-    /**
-     *
-     * @param {User} from
-     * @param {User} to
-     * @return {Promise<Channel>}
-     */
-    async ensureChannel(from, to) {
-        await this.ensureRoom(from, to);
-
-        const found = channels.find(channel => (channel.fromId === from.id) && (channel.toId === to.id));
-        if(found) {
-            return found;
-        }
-
-        /**
-         *
-         * @type {Channel}
-         */
-        const channel = {
-            fromId: from.id,
-            toId: to.id,
-            from: from,
-            to: to,
-        };
-        channels.push(channel);
-        return channel;
     },
 
     /**
