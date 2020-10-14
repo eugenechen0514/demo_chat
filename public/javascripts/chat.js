@@ -58,8 +58,9 @@ function renderUserList(users, self) {
 /**
  *
  * @param {Room[]} rooms
+ * @param {User} self
  */
-function renderRooms(rooms) {
+function renderRooms(rooms, self) {
     const roomListElement = document.getElementsByClassName('room_list').item(0);
     const roomElements = rooms.map(room => {
         const a = document.createElement('a');
@@ -67,7 +68,8 @@ function renderRooms(rooms) {
             socket.emit('selectRoomTopic', room);
         });
 
-        a.appendChild(document.createTextNode(`${room.id} : (${room.messages.length} message)`));
+        const other = room.users.find(user => user.id !== self.id);
+        a.appendChild(document.createTextNode(`${other.name} : (${room.messages.length} message, id: ${room.id})`));
         if(room.messages.length > 0) {
             const lastMessage = room.messages[room.messages.length -1];
             const date = new Date(lastMessage.date);
@@ -181,6 +183,6 @@ function connectRooms(userId, userName) {
     });
     socket.on('updateRoomsTopic', (rooms) => {
         console.log('updateRoomsTopic', rooms);
-        renderRooms(rooms);
+        renderRooms(rooms, self);
     });
 }
