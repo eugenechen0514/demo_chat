@@ -22,13 +22,13 @@ const socketToUserId = new Map();
  * @param {User} user
  * @param {Socket} socket
  */
-function registerUser(user, socket) {
+function registerOnlineUser(user, socket) {
     const userId = user.id;
     userIdToSocket.set(userId, socket);
     socketToUserId.set(socket, userId);
 }
 
-function unregisterUser(socket) {
+function unregisterOnlineUser(socket) {
     const userId = socketToUserId.get(socket);
     socketToUserId.delete(socket);
     userIdToSocket.delete(userId);
@@ -100,27 +100,35 @@ function init(io) {
     io.on('reconnect', socket => {
         const id = socket.handshake.query.id;
         const name = socket.handshake.query.name;
-        registerUser({id, name}, socket);
+        registerOnlineUser({id, name}, socket);
         broadcastUserList(io);
     });
 
+    // for online socket
     io.on('connect', socket => {
         const id = socket.handshake.query.id;
         const name = socket.handshake.query.name;
-        registerUser({id, name}, socket);
-        broadcastUserList(io);
 
-        joinRooms(socket);
-
+        // debug
         socket.emit('greetings', `Hey! ${id} -> ${name}`);
 
+        // register online user
+        registerOnlineUser({id, name}, socket);
+
+        // update user list for all online sockets
+        broadcastUserList(io);
+
+        // join rooms
+        joinRooms(socket);
+
+        // update rooms for the socket
         emitRoomList(id, emitQueue)
             .catch(handleError);
 
         socket.on('disconnecting', (reason) => {
             const userId = socketToUserId.get(socket);
             debug(`${userId} exited.`, reason);
-            unregisterUser(socket);
+            unregisterOnlineUser(socket);
             broadcastUserList(io);
         });
 
@@ -152,7 +160,7 @@ function init(io) {
             debug(message);
             const {fromId, toId, content, date = new Date()} = message;
             (async () => {
-                // to db
+                // save data to db
                 const [from, to] = await Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)]);
                 await ChannelModel.pushMessage(from, to, content, date);
 
@@ -160,7 +168,7 @@ function init(io) {
                 await emitRoomList(fromId, emitQueue);
                 await emitRoomList(toId, emitQueue);
 
-                // send msg to room
+                // send msg to sockets with the same room
                 emitQueue.push(() => {
                     io.to(ChannelModel.computeRoomId(from, to)).emit('sentMessageTopic', {fromId, toId, from, to, content, date});
                 });
