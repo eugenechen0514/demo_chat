@@ -57,20 +57,6 @@ function renderUserList(users, self) {
 
 /**
  *
- * @param {User} from
- * @param {User} to
- * @param {ChannelMessage[]} messages
- */
-function selectedChannel(from, to, messages) {
-    channel = {fromId: from.id, toId: to.id, from, to, messages};
-    const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
-    channelTitleElement.innerHTML = `私訊給： ${to.name}`;
-
-    renderMessage(messages);
-}
-
-/**
- *
  * @param {Room[]} rooms
  */
 function renderRooms(rooms) {
@@ -119,6 +105,21 @@ function renderMessage(messages) {
 
 }
 
+
+/**
+ *
+ * @param {User} from
+ * @param {User} to
+ * @param {ChannelMessage[]} messages
+ */
+function selectedChannel(from, to, messages) {
+    channel = {fromId: from.id, toId: to.id, from, to, messages};
+    const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
+    channelTitleElement.innerHTML = `私訊給： ${to.name}`;
+
+    renderMessage(messages);
+}
+
 /**
  *
  * @param {Room} room
@@ -126,12 +127,9 @@ function renderMessage(messages) {
  */
 function selectedRoom(room, self) {
     userSelectedRoom = room;
-    const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
 
     const other = room.users.find(user => user.id !== self.id);
-    channelTitleElement.innerHTML = `私訊給： ${other.name}`;
-
-    renderMessage(room.messages);
+    selectedChannel(self, other, room.messages);
 }
 
 /**
