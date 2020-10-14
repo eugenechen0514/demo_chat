@@ -85,6 +85,16 @@ function init(io) {
 
     const emitQueue = new Queue(handleEmit);
 
+    async function emitRoomList(userId, emitQueue) {
+        const toSocket = userIdToSocket.get(userId);
+        if (toSocket) {
+            const rooms = await ChannelModel.getUserRooms(userId);
+            emitQueue.push(() => {
+                toSocket.emit('updateRoomsTopic', rooms);
+            });
+        }
+    }
+
     io.on('reconnect', socket => {
         const id = socket.handshake.query.id;
         const name = socket.handshake.query.name;
@@ -101,6 +111,9 @@ function init(io) {
         joinRooms(socket);
 
         socket.emit('greetings', `Hey! ${id} -> ${name}`);
+
+        emitRoomList(id, emitQueue)
+            .catch(handleError);
 
         socket.on('disconnecting', (reason) => {
             const userId = socketToUserId.get(socket);
@@ -129,21 +142,8 @@ function init(io) {
                 await ChannelModel.pushMessage(from, to, content, date);
 
                 // update rooms for online fromUser and toUser
-                const fromSocket = userIdToSocket.get(fromId);
-                if(fromSocket) {
-                    const rooms = await ChannelModel.getUserRooms(fromId);
-                    emitQueue.push(() => {
-                        fromSocket.emit('updateRoomsTopic', rooms);
-                    });
-                }
-
-                const toSocket = userIdToSocket.get(toId);
-                if(toSocket) {
-                    const rooms = await ChannelModel.getUserRooms(toId);
-                    emitQueue.push(() => {
-                        toSocket.emit('updateRoomsTopic', rooms);
-                    });
-                }
+                await emitRoomList(fromId, emitQueue);
+                await emitRoomList(toId, emitQueue);
 
                 // send msg to room
                 emitQueue.push(() => {
