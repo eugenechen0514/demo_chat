@@ -30,7 +30,7 @@ router.post('/register', function(req, res, next) {
         res
             .cookie('userId', id)
             .cookie('userName', name)
-            .render('rooms', data);
+            .render('chat', data);
       })
       .catch(next);
 });
