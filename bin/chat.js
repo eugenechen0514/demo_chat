@@ -1,3 +1,5 @@
+const Queue = require('better-queue');
+
 const UserModel = require('../models/users');
 const ChannelModel = require('../models/channels');
 
@@ -71,6 +73,25 @@ function joinRooms(socket) {
  * @param {SocketIO.Server} io
  */
 function init(io) {
+    /**
+     *
+     * @param {function()} emitFun
+     * @param cb
+     */
+    function handleEmit(emitFun, cb) {
+        emitFun();
+        cb(null, emitFun);
+    }
+
+    const emitQueue = new Queue(handleEmit);
+
+    io.on('reconnect', socket => {
+        const id = socket.handshake.query.id;
+        const name = socket.handshake.query.name;
+        registerUser({id, name}, socket);
+        broadcastUserList(io);
+    });
+
     io.on('connect', socket => {
         const id = socket.handshake.query.id;
         const name = socket.handshake.query.name;
@@ -101,8 +122,34 @@ function init(io) {
 
         socket.on('sendMessageTopic', (message) => {
             console.log(message);
-            const {from, to, content, date = new Date()} = message;
-            io.to(ChannelModel.computeRoomId(from, to)).emit('sentMessageTopic', {from, to, content, date});
+            const {fromId, toId, from, to, content, date = new Date()} = message;
+            (async () => {
+                // to db
+                await ChannelModel.pushMessage(from, to, content, date);
+
+                // update rooms for online fromUser and toUser
+                const fromSocket = userIdToSocket.get(fromId);
+                if(fromSocket) {
+                    const rooms = await ChannelModel.getUserRooms(fromId);
+                    emitQueue.push(() => {
+                        fromSocket.emit('updateRoomsTopic', rooms);
+                    });
+                }
+
+                const toSocket = userIdToSocket.get(toId);
+                if(toSocket) {
+                    const rooms = await ChannelModel.getUserRooms(toId);
+                    emitQueue.push(() => {
+                        toSocket.emit('updateRoomsTopic', rooms);
+                    });
+                }
+
+                // send msg to room
+                emitQueue.push(() => {
+                    io.to(ChannelModel.computeRoomId(from, to)).emit('sentMessageTopic', {from, to, content, date});
+                });
+            })()
+                .catch(handleError);
         });
     });
 
@@ -112,6 +159,7 @@ function init(io) {
         for(let [userId, socket] of userIdToSocket) {
             msg += `${userId} : ${Object.keys(socket.rooms)}\n`
         }
+        msg += '\n';
         console.log(msg);
     }, 2000);
 }

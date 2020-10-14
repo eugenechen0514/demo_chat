@@ -1,7 +1,6 @@
 const assert = require('assert');
 const express = require('express');
 
-const RoomModel = require('../models/rooms');
 const UserModel = require('../models/users');
 
 const router = express.Router();

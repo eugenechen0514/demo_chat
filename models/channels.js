@@ -51,13 +51,14 @@ module.exports = {
 
     /**
      *
-     * @param {User} user
+     * @param {User | string} user
      * @return {Promise<Room[]>}
      */
     async getUserRooms(user) {
-        return channels.filter(room => {
+        const userId = typeof user === 'object' ? user.id : user;
+        return rooms.filter(room => {
             const ids = room.id.split('-');
-            return ids.find(id => id === user.id);
+            return ids.find(id => id === userId);
         });
     },
 
@@ -93,6 +94,8 @@ module.exports = {
      * @return {Promise<Channel>}
      */
     async ensureChannel(from, to) {
+        await this.ensureRoom(from, to);
+
         const found = channels.find(channel => (channel.fromId === from.id) && (channel.toId === to.id));
         if(found) {
             return found;
@@ -117,8 +120,9 @@ module.exports = {
      * @param {User} fromUser
      * @param {User} toUser
      * @param {string} content
+     * @param {Date} [date]
      */
-    async sendMessage(fromUser, toUser, content) {
+    async pushMessage(fromUser, toUser, content, date = new Date) {
         /**
          *
          * @type {ChannelMessage}
@@ -131,9 +135,6 @@ module.exports = {
             content,
             date: new Date()
         };
-
-        const channel  = await this.ensureChannel(fromUser, toUser);
-
         const room  = await this.ensureRoom(fromUser, toUser);
         room.messages.push(message);
     }

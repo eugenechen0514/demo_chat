@@ -55,7 +55,7 @@ function renderUserList(users, self) {
  * @param {User} to
  */
 function selectedChannel(from, to) {
-    channel = {from, to};
+    channel = {fromId: from.id, toId: to.id, from, to};
     const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
     channelTitleElement.innerHTML = `私訊給： ${to.name}`;
 }
@@ -95,5 +95,8 @@ function connectRooms(userId, userName) {
     });
     socket.on('sentMessageTopic', (message) => {
         console.log('sentMessageTopic', message);
+    });
+    socket.on('updateRoomsTopic', (rooms) => {
+        console.log('updateRoomsTopic', rooms);
     });
 }
