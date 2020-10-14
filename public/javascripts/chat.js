@@ -139,8 +139,8 @@ function selectedRoom(room, self) {
 
     const other = room.users.find(user => user.id !== self.id);
 
-    const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
-    channelTitleElement.innerHTML = `私訊給： ${other.name}`;
+    const roomTitleElement = document.getElementsByClassName('room_title').item(0);
+    roomTitleElement.innerHTML = `私訊給： ${other.name}`;
 
     renderMessage(room.messages, self);
 }
