@@ -129,7 +129,7 @@ function init(io) {
             (async () => {
                 const [from, to] = await Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)]);
                 const room = await ChannelModel.findRoom(from, to);
-                socket.emit(`selectedChannelTopic`, {fromId, toId, from, to, messages: room.messages});
+                socket.emit(`selectedRoomTopic`, room);
             })()
                 .catch(handleError);
         });

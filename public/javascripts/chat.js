@@ -162,13 +162,6 @@ function connectRooms(userId, userName) {
         console.log('updateUserList', users);
         renderUserList(users, self);
     });
-    socket.on('selectedChannelTopic', (channel) => {
-        console.log('selectedChannelTopic', channel);
-        const {from, to, messages} = channel;
-        if(from && to) {
-            selectedChannel(from, to, messages, self);
-        }
-    });
     socket.on('selectedRoomTopic', (room) => {
         console.log('selectedRoomTopic', room);
         const {id} = room;
