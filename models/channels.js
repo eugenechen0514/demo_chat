@@ -1,3 +1,5 @@
+const UserModel = require('./users');
+
 /**
  * @typedef {Object} Channel
  * @property {string} fromId user id
@@ -21,6 +23,7 @@
  * @typedef {Object} Room
  * @property {string} id
  * @property {ChannelMessage[]} messages
+ * @property {User[]} [users]
  */
 
 
@@ -83,6 +86,7 @@ module.exports = {
         const room = {
             id: roomId,
             messages: [],
+            users: [userA, userB]
         };
         rooms.push(room);
         return room;
@@ -148,5 +152,14 @@ module.exports = {
      */
     async findRoom(from, to) {
         return this.ensureRoom(from, to);
+    },
+
+    /**
+     *
+     * @param {string} id
+     * @return {Promise<Room | undefined>}
+     */
+    async findRoomById(id) {
+        return rooms.find(room => room.id === id);
     }
 }

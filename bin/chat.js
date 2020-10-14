@@ -133,6 +133,16 @@ function init(io) {
             })()
                 .catch(handleError);
         });
+        socket.on('selectRoomTopic', (room) => {
+            console.log('selectRoomTopic', room);
+            const {id} = room;
+
+            (async () => {
+                const room = await ChannelModel.findRoomById(id);
+                socket.emit(`selectedRoomTopic`, room);
+            })()
+                .catch(handleError);
+        });
 
         socket.on('sendMessageTopic', (message) => {
             console.log(message);

@@ -6,6 +6,12 @@ let socket = null;
  */
 let channel = null;
 
+/**
+ *
+ * @type {Room | null}
+ */
+let userSelectedRoom = null;
+
 function handleError(error) {
     alert(String(error));
 }
@@ -72,7 +78,7 @@ function renderRooms(rooms) {
     const roomElements = rooms.map(room => {
         const a = document.createElement('a');
         a.addEventListener('click', () => {
-            // socket.emit('selectChannelTopic', {fromId: self.id, toId: user.id});
+            socket.emit('selectRoomTopic', room);
         });
         a.appendChild(document.createTextNode(`${room.id} : (${room.messages.length} message)`));
 
@@ -108,6 +114,21 @@ function renderMessage(messages) {
 
 /**
  *
+ * @param {Room} room
+ * @param {User} self
+ */
+function selectedRoom(room, self) {
+    userSelectedRoom = room;
+    const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
+
+    const other = room.users.find(user => user.id !== self.id);
+    channelTitleElement.innerHTML = `私訊給： ${other.name}`;
+
+    renderMessage(room.messages);
+}
+
+/**
+ *
  * @param {string} userId
  * @param {string} userName
  */
@@ -137,6 +158,13 @@ function connectRooms(userId, userName) {
         const {from, to, messages} = channel;
         if(from && to) {
             selectedChannel(from, to, messages);
+        }
+    });
+    socket.on('selectedRoomTopic', (room) => {
+        console.log('selectedRoomTopic', room);
+        const {id} = room;
+        if(id) {
+            selectedRoom(room, self);
         }
     });
     socket.on('sentMessageTopic', (message) => {
