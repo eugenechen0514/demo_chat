@@ -21,7 +21,7 @@ function sendMessage(self) {
         const other = getOther(userSelectedRoom, self);
         /**
          *
-         * @type {ChannelMessage}
+         * @type {RoomMessage}
          */
         const message = {
             fromId: self.id,
@@ -100,7 +100,7 @@ function renderRooms(rooms, self) {
 
 /**
  *
- * @param {ChannelMessage[]} messages
+ * @param {RoomMessage[]} messages
  * @param {User} self
  */
 function renderMessage(messages, self) {
@@ -126,7 +126,7 @@ function renderMessage(messages, self) {
  *
  * @param {User} from
  * @param {User} to
- * @param {ChannelMessage[]} messages
+ * @param {RoomMessage[]} messages
  * @param {User} self
  */
 function selectedChannel(from, to, messages, self) {
