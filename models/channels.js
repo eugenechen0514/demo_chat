@@ -4,6 +4,7 @@
  * @property {string} toId user id
  * @property {User} [from] user
  * @property {User} [to] user
+ * @property {ChannelMessage[]} messages
  */
 
 /**
@@ -137,5 +138,15 @@ module.exports = {
         };
         const room  = await this.ensureRoom(fromUser, toUser);
         room.messages.push(message);
+    },
+
+    /**
+     *
+     * @param {User} from
+     * @param {User} to
+     * @return {Promise<Room>}
+     */
+    async findRoom(from, to) {
+        return this.ensureRoom(from, to);
     }
 }

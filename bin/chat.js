@@ -115,7 +115,8 @@ function init(io) {
 
             (async () => {
                 const [from, to] = await Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)]);
-                socket.emit(`selectedChannelTopic`, {fromId, toId, from, to});
+                const room = await ChannelModel.findRoom(from, to);
+                socket.emit(`selectedChannelTopic`, {fromId, toId, from, to, messages: room.messages});
             })()
                 .catch(handleError);
         });

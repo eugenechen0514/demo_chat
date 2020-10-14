@@ -53,11 +53,14 @@ function renderUserList(users, self) {
  *
  * @param {User} from
  * @param {User} to
+ * @param {ChannelMessage[]} messages
  */
-function selectedChannel(from, to) {
-    channel = {fromId: from.id, toId: to.id, from, to, messages: []};
+function selectedChannel(from, to, messages) {
+    channel = {fromId: from.id, toId: to.id, from, to, messages};
     const channelTitleElement = document.getElementsByClassName('channel_title').item(0);
     channelTitleElement.innerHTML = `私訊給： ${to.name}`;
+
+    renderMessage(messages);
 }
 
 /**
@@ -131,9 +134,9 @@ function connectRooms(userId, userName) {
     });
     socket.on('selectedChannelTopic', (channel) => {
         console.log('selectedChannelTopic', channel);
-        const {from, to} = channel;
+        const {from, to, messages} = channel;
         if(from && to) {
-            selectedChannel(from, to);
+            selectedChannel(from, to, messages);
         }
     });
     socket.on('sentMessageTopic', (message) => {
