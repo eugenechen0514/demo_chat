@@ -1,7 +1,9 @@
 /**
  * @typedef {Object} Channel
- * @property {string} from user id
- * @property {string} to user id
+ * @property {string} fromId user id
+ * @property {string} toId user id
+ * @property {User} [from] user
+ * @property {User} [to] user
  */
 
 /**

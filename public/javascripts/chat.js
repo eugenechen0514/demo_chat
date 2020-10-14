@@ -2,7 +2,7 @@ let socket = null;
 
 /**
  *
- * @type {Channel}
+ * @type {Channel | null}
  */
 let channel = null;
 
@@ -36,7 +36,7 @@ function renderUserList(users, self) {
         .map(user => {
             const a = document.createElement('a');
             a.addEventListener('click', () => {
-                socket.emit('selectingRoom', {from: self.id, to: user.id});
+                socket.emit('selectChannelTopic', {fromId: self.id, toId: user.id});
             });
             a.appendChild(document.createTextNode(`${user.name} (${user.isOnline ? 'online' : 'offline'})`));
 
@@ -86,9 +86,12 @@ function connectRooms(userId, userName) {
         console.log('updateUserList', users);
         renderUserList(users, self);
     });
-    socket.on('selectedRoom', ({from, to}) => {
-        console.log('selectedRoom', from, to);
-        selectedChannel(from, to);
+    socket.on('selectedChannelTopic', (channel) => {
+        console.log('selectedChannelTopic', channel);
+        const {from, to} = channel;
+        if(from && to) {
+            selectedChannel(from, to);
+        }
     });
     socket.on('sentMessage', (message) => {
         console.log('sentMessage', message);

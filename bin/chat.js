@@ -81,13 +81,14 @@ function init(io) {
 
         socket.emit('greetings', `Hey! ${id} -> ${name}`);
 
-        socket.on('selectingRoom', ({from, to}) => {
-            console.log('selectingRoom', {from, to});
+        socket.on('selectChannelTopic', (channel) => {
+            console.log('selectChannelTopic', channel);
+            const {fromId, toId} = channel;
 
             // real-time
-            Promise.all([UserModel.findUser(from), UserModel.findUser(to)])
+            Promise.all([UserModel.findUser(fromId), UserModel.findUser(toId)])
                 .then(([from, to]) => {
-                    socket.emit(`selectedRoom`, {from, to})
+                    socket.emit(`selectedChannelTopic`, {fromId, toId, from, to})
                 })
                 .catch(handleError);
         });
